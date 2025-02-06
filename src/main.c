@@ -11,7 +11,7 @@ int main()
     SetTargetFPS(60);
 
     char buff[256] = "";
-    char text[256] = "";
+    char message[256] = "";
 
     bool showText = false;
 
@@ -26,18 +26,18 @@ int main()
             DrawLine(200, 720, 200, 0, RAYWHITE); // Vertical Line
             DrawLine(0, 70, 200, 70, RAYWHITE); // Horizontal Line
 
-            GuiTextBox((Rectangle){220, 660, 900, 30}, buff, 100, true);
+            GuiTextBox((Rectangle){220, 660, 900, 30}, buff, 100, true); // Input Message Box
             
-            if((IsKeyPressed(KEY_ENTER) || GuiButton((Rectangle){1140, 660, 100, 30}, "SEND")) && strcmp(buff, "") != 0)
+            if((IsKeyPressed(KEY_ENTER) || GuiButton((Rectangle){1140, 660, 100, 30}, "SEND")) && strcmp(buff, "") != 0) // Transfer text from input buffer to text message and freeing buffer
             {
                 showText = true;
-                strcpy(text, buff);
+                strcpy(message, buff);
                 strcpy(buff, "");
             }
 
             if(showText)
             {
-                DrawText(text, 220, 100, 30, RAYWHITE);
+                DrawText(message, 220, 100, 30, RAYWHITE);
             }
 
         EndDrawing();
