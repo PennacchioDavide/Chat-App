@@ -5,9 +5,9 @@ all:
 	gcc -Wall -Wextra -o main $(SOURCES) -lraylib -lm -ldl -pthread
 	./main
 
-server:
-	gcc -Wall -Wextra -o server src/server.c
-	./server
+server_client:
+	gcc -Wall -Wextra -o server_client src/server_client.c
+	./server_client
 
 clean:
-	rm -f main
+	rm -f main server_client

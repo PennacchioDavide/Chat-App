@@ -8,7 +8,9 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-struct server_socket
+#define PORT 8080
+
+struct client_socket
 {
     struct sockaddr_in address;
     char buffer[1024];
@@ -16,7 +18,7 @@ struct server_socket
 };
 
 struct server_socket *createServerSocket();
-void bindReadServerSocket(struct server_socket *socket_serv);
-void SendServerSocket(struct server_socket *socket_serv,  char *string);
+void bindReadClientSocket(struct client_socket *socket_client);
+void SendClientSocket(struct client_socket *socket_client,  char *string);
 
 #endif
