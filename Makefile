@@ -1,7 +1,7 @@
 SOURCES = src/main.c
 
 all: 
-	gcc -Wall -Wextra -Werror `pkg-config --cflags gtk+-3.0` -o main $(SOURCES) `pkg-config --libs gtk+-3.0`
+	gcc -Wall -Wextra -o main $(SOURCES) -lraylib -lm -ldl -pthread
 	./main
 
 clean:

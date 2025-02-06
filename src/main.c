@@ -1,30 +1,28 @@
-#include <gtk/gtk.h>
-#include "server.h"
+#include <raylib.h>
+#define RAYGUI_IMPLEMENTATION
+#include "../include/raygui.h"
+#include "../include/server.h"
 
-int main(int argc, char *argv[])
+int main()
 {
-    gtk_init(&argc, &argv); // Init GTK
-    
-    GtkWidget *window; // Declaring Window
-    GtkWidget *box; // Declaring Container Box
+    InitWindow(1280, 720, "Chat App");
+    SetTargetFPS(60);
 
-    window = gtk_window_new(GTK_WINDOW_TOPLEVEL); // Init Window
+    while (!WindowShouldClose())
+    {
+        BeginDrawing();
+            
+            ClearBackground(DARKGRAY);
 
-    box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0); // Init Container Box
+            DrawText("Contacts", 20, 20, 30, RAYWHITE);
 
-    gtk_container_add(GTK_CONTAINER (window), box); // Adding Container Box to Window
+            DrawLine(200, 720, 200, 0, RAYWHITE);
+            DrawLine(0, 70, 200, 70, RAYWHITE);
 
-    gtk_window_set_default_size(GTK_WINDOW (window), 1280, 720); // Setting Window Size
+        EndDrawing();
+    }
 
-    gtk_window_set_title(GTK_WINDOW (window), "Chat App"); // Setting Window Title
-
-    gtk_window_set_resizable(GTK_WINDOW (window), FALSE); // Setting Window Not Resizable
-
-    g_signal_connect(window, "destroy", gtk_main_quit, NULL); // Enabling x Button
-
-    gtk_widget_show_all(window); // Show Window
-
-    gtk_main(); // Run GTK
+    CloseWindow();
 
     return 0;
 }
