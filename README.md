@@ -1,4 +1,3 @@
-Implementation of a Chat Program for linux using:
-- Raylib and Raygui for GUI
+#Implementation of a Chat Program for linux using:
 - Sockets for server-client
-- Pthreads to run client and server at the same time
+- Pthread to run clients and server at the same time
