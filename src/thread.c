@@ -11,7 +11,7 @@ void *server_thread(void *arg)
     runServer(server);
 
     free(server);
-    free(args);  // Free the thread arguments
+    free(args);
     return NULL;
 }
 
@@ -64,6 +64,6 @@ void *client_thread(void *arg)
 
     close(client->sock);
     free(client);
-    free(args);  // Free the thread arguments
+    free(args);
     return NULL;
 }

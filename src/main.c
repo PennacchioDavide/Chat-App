@@ -1,6 +1,7 @@
 #include "../include/server_client.h"
 #include "../include/thread.h"
 #include "../include/message_types.h"
+#include "../include/database.h"
 
 Message message_history[MAX_MESSAGES];
 int message_count = 0;
@@ -12,16 +13,6 @@ void addMessageToHistory(const char *message, int id)
         strncpy(message_history[message_count].message, message, BUFFER_SIZE);
         message_history[message_count].id = id;
         message_count++;
-    } 
-    else 
-    {
-        for (int i = 1; i < MAX_MESSAGES; i++) 
-        {
-            strncpy(message_history[i - 1].message, message_history[i].message, BUFFER_SIZE);
-            message_history[i - 1].id = message_history[i].id;
-        }
-        strncpy(message_history[MAX_MESSAGES - 1].message, message, BUFFER_SIZE);
-        message_history[MAX_MESSAGES - 1].id = id;
     }
 }
 
@@ -56,10 +47,11 @@ int main(int argc, char *argv[])
     pthread_create(&client_tid, NULL, client_thread, client_args);
 
     char input_buffer[256] = "";
+    char name[256] = "";
 
     while (1) 
     {
-        printf("You: ");
+        printf("%s: ", argv[1]);
         scanf("%s", input_buffer);
         if (strcmp(input_buffer, "") != 0) 
         {
@@ -82,6 +74,6 @@ int main(int argc, char *argv[])
         pthread_mutex_unlock(&message_mutex);
     }
 
-    pthread_join(client_tid, NULL);  // Wait for the client thread to finish
+    pthread_join(client_tid, NULL);
     return 0;
 }

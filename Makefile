@@ -12,7 +12,10 @@ exe/server_client.o: src/server_client.c | exe
 exe/thread.o: src/thread.c | exe
 	gcc -c -o exe/thread.o src/thread.c
 
-FILEO = exe/main.o exe/server_client.o exe/thread.o
+exe/database.o: src/database.c | exe
+	gcc -c -o exe/database.o src/database.c
+
+FILEO = exe/main.o exe/server_client.o exe/thread.o exe/database.o
 
 program: $(FILEO)
 	gcc -o main $(FILEO)
