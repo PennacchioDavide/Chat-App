@@ -3,15 +3,12 @@
 
 #define MAX_MESSAGES 1000
 
-typedef enum {
-    CLIENT_MSG,
-    SERVER_MSG
-} MessageType;
-
 typedef struct 
 {
     char message[BUFFER_SIZE];
-    MessageType type;
+    int id;
 } Message;
+
+void addMessageToHistory(const char *message, int id);
 
 #endif

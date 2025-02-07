@@ -4,59 +4,52 @@
 
 void *server_thread(void *arg) 
 {
-    // Création du serveur
-    struct socket_t *server = createServer();
+    struct server_thread_args *args = (struct server_thread_args *)arg;
+    struct socket_t *server = args->server;
 
-    // Lancement du serveur
-    printf("Démarrage du serveur...\n");
+    printf("Starting the server...\n");
     runServer(server);
 
-    // Libération des ressources une fois le serveur arrêté
     free(server);
+    free(args);  // Free the thread arguments
     return NULL;
 }
 
+
 void *client_thread(void *arg) 
 {
+    struct client_thread_args *args = (struct client_thread_args *)arg;
+    struct socket_t *server = args->server;
+
     struct socket_t *client = createClient();
+    printf("Client trying to connect to the server...\n");
 
-    printf("Client trying to connect to server...\n");
-
-    while (connect(client->sock, (struct sockaddr*)&client->address, sizeof(client->address)) < 0) 
+    while (connect(client->sock, (struct sockaddr *)&client->address, sizeof(client->address)) < 0) 
     {
         perror("Client connection failed, retrying...");
         sleep(1);
     }
 
-    printf("Client connected to server...\n");
+    printf("Client connected to the server...\n");
 
     while (1) 
     {
-        // Envoi d'un message si le client en a un à envoyer
         if (new_client_message) 
         {
-            sendSocket(client->sock, client_message); 
+            sendSocket(server->sock, client_message);
             new_client_message = false;
-            printf("Client sent: %s\n", client_message);
         }
 
-        // Réception d'un message du serveur
         int bytes_read = recv(client->sock, client->buffer, BUFFER_SIZE - 1, 0);
         if (bytes_read > 0) 
         {
             client->buffer[bytes_read] = '\0';
 
-            // Verrouiller le mutex pour modifier l'historique des messages
             pthread_mutex_lock(&message_mutex);
             strcpy(server_message, client->buffer);
-
-            // Ajouter le message reçu à l'historique
-            addMessageToHistory(client->buffer, SERVER_MSG);
-
+            addMessageToHistory(server_message, 0);
             new_server_message = true;
             pthread_mutex_unlock(&message_mutex);
-
-            printf("Client received: %s\n", server_message);
         } 
         else if (bytes_read == 0) 
         {
@@ -71,5 +64,6 @@ void *client_thread(void *arg)
 
     close(client->sock);
     free(client);
+    free(args);  // Free the thread arguments
     return NULL;
 }

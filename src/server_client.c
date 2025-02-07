@@ -43,7 +43,7 @@ void broadcastMessage(const char *message, int sender_sock)
 struct socket_t *createServer() 
 {
     struct socket_t *socket_serv = malloc(sizeof(struct socket_t));
-    if (socket_serv == NULL)
+    if (socket_serv == NULL) 
     {
         perror("Failed to allocate memory for server socket");
         exit(EXIT_FAILURE);
@@ -62,6 +62,7 @@ struct socket_t *createServer()
 
     return socket_serv;
 }
+
 
 void runServer(struct socket_t *socket_serv) {
     int opt = 1;
@@ -157,9 +158,6 @@ void *handleClient(void *arg)
     free(socket_client);
     return NULL;
 }
-
-
-
 
 struct socket_t *createClient() 
 {

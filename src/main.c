@@ -1,6 +1,3 @@
-#include <raylib.h>
-#define RAYGUI_IMPLEMENTATION
-#include "../include/raygui.h"
 #include "../include/server_client.h"
 #include "../include/thread.h"
 #include "../include/message_types.h"
@@ -8,12 +5,12 @@
 Message message_history[MAX_MESSAGES];
 int message_count = 0;
 
-void addMessageToHistory(const char *message, MessageType type) 
+void addMessageToHistory(const char *message, int id) 
 {
     if (message_count < MAX_MESSAGES) 
     {
         strncpy(message_history[message_count].message, message, BUFFER_SIZE);
-        message_history[message_count].type = type;
+        message_history[message_count].id = id;
         message_count++;
     } 
     else 
@@ -21,10 +18,10 @@ void addMessageToHistory(const char *message, MessageType type)
         for (int i = 1; i < MAX_MESSAGES; i++) 
         {
             strncpy(message_history[i - 1].message, message_history[i].message, BUFFER_SIZE);
-            message_history[i - 1].type = message_history[i].type;
+            message_history[i - 1].id = message_history[i].id;
         }
         strncpy(message_history[MAX_MESSAGES - 1].message, message, BUFFER_SIZE);
-        message_history[MAX_MESSAGES - 1].type = type;
+        message_history[MAX_MESSAGES - 1].id = id;
     }
 }
 
@@ -40,71 +37,51 @@ int main(int argc, char *argv[])
     if (is_server) 
     {
         struct socket_t *server = createServer();
-        runServer(server);
-        free(server);
+
+        struct server_thread_args *server_args = malloc(sizeof(struct server_thread_args));
+        server_args->server = server;
+
+        pthread_t server_tid;
+        pthread_create(&server_tid, NULL, server_thread, server_args);
+        pthread_join(server_tid, NULL);  // Wait for the server thread to finish
         return 0;
     }
 
-    InitWindow(1280, 720, "Chat App");
-    SetTargetFPS(60);
+    struct socket_t *server = createClient();
+
+    struct client_thread_args *client_args = malloc(sizeof(struct client_thread_args));
+    client_args->server = server;
+
+    pthread_t client_tid;
+    pthread_create(&client_tid, NULL, client_thread, client_args);
 
     char input_buffer[256] = "";
-    pthread_t client_tid;
 
-    pthread_create(&client_tid, NULL, client_thread, NULL);
-
-    while (!WindowShouldClose()) 
+    while (1) 
     {
-        BeginDrawing();
-        ClearBackground(DARKGRAY);
-
-        DrawText("Chats:", 20, 20, 30, RAYWHITE);
-        DrawLine(200, 720, 200, 0, RAYWHITE);
-        DrawLine(0, 70, 200, 70, RAYWHITE);
-
-        if ((GuiTextBox((Rectangle){220, 660, 900, 30}, input_buffer, 256, true) && strcmp(input_buffer, "") != 0) || 
-            GuiButton((Rectangle){1120, 660, 140, 30}, "Send") || 
-            (IsKeyPressed(KEY_ENTER) && strcmp(input_buffer, "") != 0)) 
+        printf("You: ");
+        scanf("%s", input_buffer);
+        if (strcmp(input_buffer, "") != 0) 
         {
             pthread_mutex_lock(&message_mutex);
             strcpy(client_message, input_buffer);
             new_client_message = true;
-            addMessageToHistory(input_buffer, CLIENT_MSG);
+            addMessageToHistory(input_buffer, 1);
             strcpy(input_buffer, "");
             pthread_mutex_unlock(&message_mutex);
         }
 
-
-        // Check if there is a new server message
-        if (new_server_message) 
-        {
-            // Add server message to history
-            pthread_mutex_lock(&message_mutex);
-            addMessageToHistory(server_message, SERVER_MSG);
-            new_server_message = false;
-            pthread_mutex_unlock(&message_mutex);
-        }
-
-        // Draw the message history
-        // Dessiner l'historique des messages
+        pthread_mutex_lock(&message_mutex);
         for (int i = 0; i < message_count; i++) 
         {
-            int y_position = 80 + i * 30;
-            if (message_history[i].type == CLIENT_MSG) 
+            if (message_history[i].id == 0) 
             {
-                DrawText(message_history[i].message, 1000, y_position, 20, RED);
-            } 
-            else if (message_history[i].type == SERVER_MSG) 
-            {
-                DrawText(message_history[i].message, 220, y_position, 20, GREEN);
+                printf("Server: %s\n", message_history[i].message);
             }
         }
-
-
-        EndDrawing();
+        pthread_mutex_unlock(&message_mutex);
     }
 
-    CloseWindow();
-
+    pthread_join(client_tid, NULL);  // Wait for the client thread to finish
     return 0;
 }
