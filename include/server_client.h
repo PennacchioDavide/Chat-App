@@ -8,6 +8,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <raylib.h>
 
 #define PORT 8080
 #define BUFFER_SIZE 1024
@@ -19,12 +20,12 @@ struct socket_t
     int sock;
 };
 
+void sendSocket(int sock,  char *string);
+
 struct socket_t *createServer();
 void runServer(struct socket_t *socket_serv);
 
 struct socket_t *createClient();
 void runClient(struct socket_t *socket_client);
-
-void SendSocket(struct socket_t *socketT,  char *string);
 
 #endif

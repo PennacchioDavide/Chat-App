@@ -1,7 +1,7 @@
 #include <raylib.h>
 #define RAYGUI_IMPLEMENTATION
 #include "../include/raygui.h"
-#include "../include/server.h"
+#include "../include/server_client.h"
 #include <stdbool.h>
 #include <string.h>
 
@@ -14,6 +14,8 @@ int main()
     char message[256] = "";
 
     bool showText = false;
+
+    int choice;
 
     while (!WindowShouldClose())
     {
@@ -41,6 +43,27 @@ int main()
             }
 
         EndDrawing();
+
+        int choice;
+
+        struct socket_t *server = createServer();
+        struct socket_t *client = createClient();
+
+        printf("Choose mode:\n1. Server\n2. Client\n");
+        scanf("%d", &choice);
+
+        if (choice == 1) 
+        {
+            runServer(server);
+        } else if (choice == 2) 
+        {
+            runClient(client);
+        } else 
+        {
+            printf("Invalid choice\n");
+        }
+        free(server);
+        free(client);
     }
 
     CloseWindow();

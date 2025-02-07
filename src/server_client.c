@@ -1,20 +1,23 @@
 #include "../include/server_client.h"
 
 void sendSocket(int sock, char *string) {
-    if (send(sock, string, strlen(string), 0) < 0) {
+    if (send(sock, string, strlen(string), 0) < 0)
+    {
         perror("Send failed");
     }
 }
 
 struct socket_t *createServer() {
     struct socket_t *socket_serv = malloc(sizeof(struct socket_t));
-    if (socket_serv == NULL) {
+    if (socket_serv == NULL)
+    {
         perror("Failed to allocate memory for server socket");
         exit(EXIT_FAILURE);
     }
 
     socket_serv->sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (socket_serv->sock < 0) {
+    if (socket_serv->sock < 0)
+    {
         perror("Server socket creation failed");
         exit(EXIT_FAILURE);
     }
@@ -26,15 +29,18 @@ struct socket_t *createServer() {
     return socket_serv;
 }
 
-struct socket_t *createClient() {
+struct socket_t *createClient()
+{
     struct socket_t *socket_client = malloc(sizeof(struct socket_t));
-    if (socket_client == NULL) {
+    if (socket_client == NULL)
+    {
         perror("Failed to allocate memory for client socket");
         exit(EXIT_FAILURE);
     }
 
     socket_client->sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (socket_client->sock < 0) {
+    if (socket_client->sock < 0)
+    {
         perror("Client socket creation failed");
         exit(EXIT_FAILURE);
     }
@@ -47,17 +53,20 @@ struct socket_t *createClient() {
 
 void runServer(struct socket_t *socket_serv) {
     int opt = 1;
-    if (setsockopt(socket_serv->sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+    if (setsockopt(socket_serv->sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+    {
         perror("setsockopt failed");
         exit(EXIT_FAILURE);
     }
 
-    if (bind(socket_serv->sock, (struct sockaddr*)&socket_serv->address, sizeof(socket_serv->address)) < 0) {
+    if (bind(socket_serv->sock, (struct sockaddr*)&socket_serv->address, sizeof(socket_serv->address)) < 0)
+    {
         perror("Server bind failed");
         exit(EXIT_FAILURE);
     }
 
-    if (listen(socket_serv->sock, 3) < 0) {
+    if (listen(socket_serv->sock, 3) < 0)
+    {
         perror("Listen failed");
         exit(EXIT_FAILURE);
     }
@@ -66,7 +75,8 @@ void runServer(struct socket_t *socket_serv) {
 
     int addrlen = sizeof(socket_serv->address);
     int new_sock = accept(socket_serv->sock, (struct sockaddr*)&socket_serv->address, (socklen_t*)&addrlen);
-    if (new_sock < 0) {
+    if (new_sock < 0)
+    {
         perror("Accept failed");
         exit(EXIT_FAILURE);
     }
@@ -76,9 +86,11 @@ void runServer(struct socket_t *socket_serv) {
     sendSocket(new_sock, message_server);
 
     int bytes_read = recv(new_sock, socket_serv->buffer, BUFFER_SIZE - 1, 0);
-    if (bytes_read < 0) {
+    if (bytes_read < 0)
+    {
         perror("Server recv failed");
-    } else {
+    } else 
+    {
         socket_serv->buffer[bytes_read] = '\0';
         printf("Server received: %s\n", socket_serv->buffer);
     }
@@ -88,12 +100,14 @@ void runServer(struct socket_t *socket_serv) {
 }
 
 void runClient(struct socket_t *socket_client) {
-    if (inet_pton(AF_INET, "127.0.0.1", &socket_client->address.sin_addr) <= 0) {
+    if (inet_pton(AF_INET, "127.0.0.1", &socket_client->address.sin_addr) <= 0)
+    {
         perror("Invalid address/Address not supported");
         exit(EXIT_FAILURE);
     }
 
-    if (connect(socket_client->sock, (struct sockaddr*)&socket_client->address, sizeof(socket_client->address)) < 0) {
+    if (connect(socket_client->sock, (struct sockaddr*)&socket_client->address, sizeof(socket_client->address)) < 0)
+    {
         perror("Client connection failed");
         exit(EXIT_FAILURE);
     }
@@ -103,9 +117,11 @@ void runClient(struct socket_t *socket_client) {
     sendSocket(socket_client->sock, message_client);
 
     int bytes_read = recv(socket_client->sock, socket_client->buffer, BUFFER_SIZE - 1, 0);
-    if (bytes_read < 0) {
+    if (bytes_read < 0)
+    {
         perror("Client recv failed");
-    } else {
+    } else
+    {
         socket_client->buffer[bytes_read] = '\0';
         printf("Client received: %s\n", socket_client->buffer);
     }
@@ -115,7 +131,8 @@ void runClient(struct socket_t *socket_client) {
 
 /*
 
-int main() {
+int main() 
+{
     int choice;
 
     struct socket_t *server = createServer();
@@ -124,11 +141,14 @@ int main() {
     printf("Choose mode:\n1. Server\n2. Client\n");
     scanf("%d", &choice);
 
-    if (choice == 1) {
+    if (choice == 1) 
+    {
         runServer(server);
-    } else if (choice == 2) {
+    } else if (choice == 2) 
+    {
         runClient(client);
-    } else {
+    } else 
+    {
         printf("Invalid choice\n");
     }
 
