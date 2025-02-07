@@ -30,6 +30,8 @@ struct socket_t
 
 void sendSocket(int sock,  char *string);
 
+void broadcastMessage(const char *message, int sender_sock);
+
 struct socket_t *createServer();
 void runServer(struct socket_t *socket_serv);
 

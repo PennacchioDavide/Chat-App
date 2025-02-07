@@ -3,20 +3,7 @@
 #include "../include/raygui.h"
 #include "../include/server_client.h"
 #include "../include/thread.h"
-
-#define MAX_MESSAGES 100
-
-typedef enum 
-{ 
-    CLIENT_MSG, 
-    SERVER_MSG 
-} MessageType;
-
-typedef struct 
-{
-    char message[BUFFER_SIZE];
-    MessageType type;
-} Message;
+#include "../include/message_types.h"
 
 Message message_history[MAX_MESSAGES];
 int message_count = 0;
@@ -40,7 +27,6 @@ void addMessageToHistory(const char *message, MessageType type)
         message_history[MAX_MESSAGES - 1].type = type;
     }
 }
-
 
 int main(int argc, char *argv[]) 
 {
@@ -76,20 +62,10 @@ int main(int argc, char *argv[])
         DrawLine(200, 720, 200, 0, RAYWHITE);
         DrawLine(0, 70, 200, 70, RAYWHITE);
 
-        if (GuiTextBox((Rectangle){220, 660, 900, 30}, input_buffer, 256, true) || 
+        if ((GuiTextBox((Rectangle){220, 660, 900, 30}, input_buffer, 256, true) && strcmp(input_buffer, "") != 0) || 
+            GuiButton((Rectangle){1120, 660, 140, 30}, "Send") || 
             (IsKeyPressed(KEY_ENTER) && strcmp(input_buffer, "") != 0)) 
-            {
-
-            pthread_mutex_lock(&message_mutex);
-            strcpy(client_message, input_buffer);
-            new_client_message = true;
-            addMessageToHistory(input_buffer, CLIENT_MSG); 
-            strcpy(input_buffer, ""); 
-            pthread_mutex_unlock(&message_mutex);
-        }
-
-        if (GuiButton((Rectangle){1120, 660, 140, 30}, "Send") || IsKeyPressed(KEY_ENTER)) 
-        {        
+        {
             pthread_mutex_lock(&message_mutex);
             strcpy(client_message, input_buffer);
             new_client_message = true;
@@ -98,18 +74,25 @@ int main(int argc, char *argv[])
             pthread_mutex_unlock(&message_mutex);
         }
 
+
+        // Check if there is a new server message
         if (new_server_message) 
         {
+            // Add server message to history
+            pthread_mutex_lock(&message_mutex);
             addMessageToHistory(server_message, SERVER_MSG);
             new_server_message = false;
+            pthread_mutex_unlock(&message_mutex);
         }
 
+        // Draw the message history
+        // Dessiner l'historique des messages
         for (int i = 0; i < message_count; i++) 
         {
             int y_position = 80 + i * 30;
             if (message_history[i].type == CLIENT_MSG) 
             {
-                DrawText(message_history[i].message, 220, y_position, 20, LIGHTGRAY);
+                DrawText(message_history[i].message, 1000, y_position, 20, RED);
             } 
             else if (message_history[i].type == SERVER_MSG) 
             {
@@ -117,10 +100,11 @@ int main(int argc, char *argv[])
             }
         }
 
+
         EndDrawing();
     }
 
     CloseWindow();
-    
+
     return 0;
 }
